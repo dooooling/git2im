@@ -18,48 +18,43 @@
 
 ## 📖 项目简介
 
-`git2im` 是基于 Cloudflare 边缘计算网络的轻量级 GitHub Webhook 通知网关，支持将 GitHub 事件实时分发至飞书、钉钉、企业微信等即时通讯（IM）平台。
+`git2im` 是基于 Cloudflare Workers 构建的 GitHub Webhook 通知网关，用于将 GitHub 仓库事件（Push、PR、Actions、Release 等）格式化并实时推送到飞书、钉钉、企业微信等即时通讯（IM）平台。
 
-系统采用**零第三方 Web 框架**的纯原生架构设计，具备毫秒级冷启动、极致低开销、严苛安全防御和开箱即用的暗黑极客管理面板。
+系统采用 Web Standards API 与 Cloudflare D1 构建，不依赖重型 Web 框架，集成原生管理面板用于配置目标通道、分发规则与查看投递日志。
 
 ```text
-GitHub Webhook ──> [ 验签 & 原子幂等 ] ──> [ 标准化模型 ] ──> [ 路由匹配器 ] ──> [ 并发投递调度 ]
+GitHub Webhook ──> [ 验签 & 原子幂等 ] ──> [ 事件标准化 ] ──> [ 路由匹配与去重 ] ──> [ 并发投递调度 ]
                                                                                    │
                                          ┌─────────────────┬───────────────────────┼────────────────────┐
                                          ▼                 ▼                       ▼                    ▼
                                   飞书自定义机器人    飞书企业自建应用         钉钉自定义机器人     企业微信群机器人
-                                  (Interactive)     (N:N Multi-App)         (Markdown 加签)      (Markdown 截断)
+                                  (Interactive)     (OpenAPI / 多接收人)    (Markdown 加签)      (Markdown 截断)
 ```
 
 ---
 
 ## ✨ 核心特性
 
-- 🚀 **边缘计算与单 Worker 部署**：
-  - 运行于 Cloudflare Workers，全球毫秒级响应，无需维护服务器与容器。
-  - 通过 Workers Static Assets 托管前端管理面板，前后端合并为单个 Worker 交付。
-- 📦 **全生命周期唯一事实源 (Single Source of Truth)**：
-  - 基于 Cloudflare D1 (SQLite) 存储配置、事件摘要、投递审计与大盘指标，零外部数据库依赖。
-- 💬 **4 类主流 IM 通道全支持**：
-  1. **`feishu_webhook`**：飞书群自定义机器人（支持加签校验、富文本卡片排版）。
-  2. **`feishu_app`**：飞书企业自建应用 OpenAPI（**N:N 独立 App 凭据**，支持单目标配置多个 `chat_id` 群聊与 `open_id` 个人私聊广播分发，内置 Token 内存隔离缓存）。
-  3. **`dingtalk_webhook`**：钉钉群自定义机器人（支持 HmacSHA256 URL 加签、Markdown 消息）。
-  4. **`wecom_webhook`**：企业微信群机器人（Markdown 格式，具备 3 KiB UTF-8 字符边界安全截断保护）。
-- 🎯 **灵活的多维路由引擎 (Route Matcher)**：
-  - 支持仓库精确匹配与通配符（如 `*`）。
-  - 支持分支过滤（如 `main`, `release/*`）、PR Action 过滤、Actions 运行状态过滤。
-  - 支持 Target 唯一去重与 6 Target Fan-out 上限保护。
-  - **规则与目标双重唯一性校验**：杜绝同名及内容重复规则。
-- 🔐 **金融级安全与凭据管理**：
-  - **AES-256-GCM 强加密**：下游 Webhook URL、Sign Secret、App Secret 加密存储，前端严格只写不回显。
-  - **30 分钟平滑轮换**：GitHub Webhook Secret 轮换期间保留旧密钥 30 分钟兼容过渡，告警零丢失。
-  - **防 SSRF 白名单**：下游 URL 强制校验官方权威域名，显式禁用 HTTP 重定向。
-  - **原子幂等性**：基于 GitHub `X-GitHub-Delivery` 与 D1 `PRIMARY KEY` 约束，天然免疫重复重试。
-  - **安全防爆破**：集成 Cloudflare Rate Limiter 频控与恒定时间密码比对（防时序侧信道攻击）。
-- 🖥️ **暗黑极客风管理面板**：
-  - 严格遵循 `DESIGN.md` 设计语言：纯黑画布 `#0a0a0a`、发丝线 `#212327`、Weight 400、9999px 胶囊圆角、零投影。
-  - 纯原生 HTML5 + CSS3 + ES Modules + 原生 SVG 绘制折线趋势图与分布矩阵。
-  - 零依赖 **中/英文 (i18n)** 一键平滑无刷新切换。
+- **支持多种事件与通知通道**：
+  - **GitHub 事件**：`push`、`pull_request`、`workflow_run`（Actions 运行完成）、`release`、`ping`。
+  - **飞书 Webhook**：支持自定义加签密钥与富文本卡片排版。
+  - **飞书自建应用**：支持独立 App ID / App Secret，单目标支持配置多个群聊（`chat_id`）与个人（`open_id`）并行投递。
+  - **钉钉 Webhook**：支持 HmacSHA256 加签与 Markdown 格式。
+  - **企业微信 Webhook**：支持 Markdown 格式与 3 KiB UTF-8 字节截断防超限保护。
+- **多维路由与去重**：
+  - 支持仓库精确匹配与通配符（如 `*` 或 `owner/repo`）。
+  - 支持按分支（如 `main`, `release/*`）、PR Action、Actions 结果进行条件过滤。
+  - 单事件多规则匹配时自动对 Target 进行去重，并限制最大 6 个 Target 分发上限。
+  - 支持 Target 与 Route 的名称唯一性及内容指纹去重校验。
+- **安全性与可靠性**：
+  - **凭据加密**：下游 Webhook URL、加签密钥、App Secret 通过 AES-256-GCM 加密存储，前端脱敏展示。
+  - **密钥轮换**：支持 GitHub Webhook Secret 轮换，保留 30 分钟旧密钥兼容窗口。
+  - **防 SSRF**：下游 Webhook URL 限制为官方权威域名白名单，显式禁止 HTTP 重定向。
+  - **原子幂等**：基于 `X-GitHub-Delivery` 与 D1 数据库主键约束，避免重复事件多次发送。
+- **轻量部署与管理面板**：
+  - 单 Worker 整合 API 路由与静态资源托管，数据存储于 Cloudflare D1 (SQLite)。
+  - 原生单页管理前端，支持 Target / Route / Settings 的增删改查、测试连通性与投递统计。
+  - 支持中英文（i18n）即时切换。
 
 ---
 
