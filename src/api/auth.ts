@@ -24,7 +24,7 @@ import {
 export const handleLogin: RouteHandler = async (request, env) => {
   const ip = request.headers.get("CF-Connecting-IP") || "127.0.0.1";
 
-  // 1. Rate Limiter 防爆破限制 (5 次/分钟)
+  // 1. Rate Limiter 防爆破限制 (10 次/分钟)
   if (env.LOGIN_RATE_LIMITER) {
     try {
       const { success } = await env.LOGIN_RATE_LIMITER.limit({ key: ip });

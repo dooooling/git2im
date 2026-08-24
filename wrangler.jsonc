@@ -24,19 +24,16 @@
   ],
 
   // 管理端登录防爆破限流器 (Rate Limiting Binding)
-  "unsafe": {
-    "bindings": [
-      {
-        "name": "LOGIN_RATE_LIMITER",
-        "type": "ratelimit",
-        "namespace_id": "1001",
-        "simple": {
-          "limit": 10,
-          "period": 60
-        }
+  "ratelimits": [
+    {
+      "name": "LOGIN_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 10,
+        "period": 60
       }
-    ]
-  },
+    }
+  ],
 
   // 定时任务触发器 (每天凌晨 03:17 UTC 执行清理过期的 events 和 deliveries)
   "triggers": {
