@@ -16,10 +16,7 @@
   // 核心数据库绑定 (Cloudflare D1 SQLite，V1 唯一业务 Source of Truth)
   "d1_databases": [
     {
-      "binding": "DB",
-      "database_name": "git2im-db",
-      "database_id": "local-db-placeholder",
-      "migrations_dir": "migrations"
+      "binding": "DB"
     }
   ],
 
