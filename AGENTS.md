@@ -7,7 +7,7 @@
 
 ## 1. 项目定位与核心流程
 
-`git2im` 是基于 Cloudflare Workers 构建的轻量级 GitHub 事件到国内主流 IM（飞书、钉钉、企业微信）的通知网关。
+`git2im` 是基于 Cloudflare Workers 构建的轻量级 GitHub 事件到 IM（飞书、钉钉、企业微信）的通知网关。
 
 核心业务管道遵循 4 步无状态流转：
 ```text

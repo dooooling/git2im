@@ -2,7 +2,7 @@
   "name": "git2im",
   "version": "1.0.0",
   "private": true,
-  "description": "基于 Cloudflare Workers 的轻量级 GitHub 到国内主流 IM（飞书/钉钉/企业微信）通知网关",
+  "description": "基于 Cloudflare Workers 的轻量级 GitHub 到 IM（飞书/钉钉/企业微信）通知网关",
   "type": "module",
   "engines": {
     "node": ">=20.0.0"

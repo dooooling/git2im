@@ -8,7 +8,7 @@
 ![Vitest](https://img.shields.io/badge/Vitest-Passing-green?style=flat-square&logo=vitest&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-black?style=flat-square)
 
-**基于 Cloudflare Workers 构建的轻量级、高可靠 GitHub 事件到国内主流 IM（飞书、钉钉、企业微信）通知网关**
+**基于 Cloudflare Workers 构建的轻量级、高可靠 GitHub 事件到 IM（飞书、钉钉、企业微信）通知网关**
 
 [在线控制台演示](#-在线控制台演示与截图) • [核心特性](#-核心特性) • [快速开始](#-快速开始) • [生产部署指南](#-生产部署指南) • [配置说明](#-github-webhook-配置指引) • [架构规范](#-架构设计与工程约束)
 
@@ -18,7 +18,7 @@
 
 ## 📖 项目简介
 
-`git2im` 是专为中国主流办公协同软件定制的 GitHub Webhook 通知网关，完全部署于 Cloudflare 边缘计算网络。
+`git2im` 是基于 Cloudflare 边缘计算网络的轻量级 GitHub Webhook 通知网关，支持将 GitHub 事件实时分发至飞书、钉钉、企业微信等即时通讯（IM）平台。
 
 系统采用**零第三方 Web 框架**的纯原生架构设计，具备毫秒级冷启动、极致低开销、严苛安全防御和开箱即用的暗黑极客管理面板。
 
@@ -40,7 +40,7 @@ GitHub Webhook ──> [ 验签 & 原子幂等 ] ──> [ 标准化模型 ] ─
   - 通过 Workers Static Assets 托管前端管理面板，前后端合并为单个 Worker 交付。
 - 📦 **全生命周期唯一事实源 (Single Source of Truth)**：
   - 基于 Cloudflare D1 (SQLite) 存储配置、事件摘要、投递审计与大盘指标，零外部数据库依赖。
-- 💬 **4 类主流国内 IM 通道全支持**：
+- 💬 **4 类主流 IM 通道全支持**：
   1. **`feishu_webhook`**：飞书群自定义机器人（支持加签校验、富文本卡片排版）。
   2. **`feishu_app`**：飞书企业自建应用 OpenAPI（**N:N 独立 App 凭据**，支持单目标配置多个 `chat_id` 群聊与 `open_id` 个人私聊广播分发，内置 Token 内存隔离缓存）。
   3. **`dingtalk_webhook`**：钉钉群自定义机器人（支持 HmacSHA256 URL 加签、Markdown 消息）。
