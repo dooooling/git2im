@@ -99,48 +99,43 @@ npm run typecheck
 
 ## 🚀 生产部署指南
 
-### 1. 在 Cloudflare 上创建 D1 数据库
-```bash
-npx wrangler d1 create git2im-db
-```
-复制终端输出的 `database_id`，更新到项目根目录的 [`wrangler.jsonc`](file:///D:/Mine/Project/git2im/wrangler.jsonc) 中：
-```jsonc
-"d1_databases": [
-  {
-    "binding": "DB",
-    "database_name": "git2im-db",
-    "database_id": "your-cloudflare-d1-database-id",
-    "migrations_dir": "migrations"
-  }
-]
-```
+本项目支持 Cloudflare 自动 D1 资源分配与自动化迁移部署流程，**无需手动在配置文件中填写 Database ID**。
 
-### 2. 配置生产环境变量与密钥
-通过 Wrangler 向 Cloudflare 写入生产 Secret（**禁止明文写在配置文件中**）：
-```bash
-# 1. 设置系统管理端登录密码
-npx wrangler secret put ADMIN_PASSWORD
+### 方式一：Cloudflare 控制台自动构建（推荐）
 
-# 2. 设置凭据主加密密钥 (32字节 Base64 字符串)
-npx wrangler secret put MASTER_KEY
-```
+1. **连接 GitHub 仓库**：
+   在 Cloudflare 控制台进入 **Workers & Pages** -> **Create** -> 连接并选择您的 `git2im` 仓库。
+2. **配置构建命令**：
+   - **Deploy command**（部署命令）：填入 **`npm run deploy`**
+   - *（该命令会在构建时自动执行远程数据库迁移并完成 Worker 发布）*。
+3. **配置生产密钥 (Secrets)**：
+   首次部署完成后，进入该 Worker 的 **Settings** -> **Variables and Secrets**，添加以下两个必填 Secret：
+   - **`ADMIN_PASSWORD`**：设置管理后台登录密码；
+   - **`MASTER_KEY`**：设置 32 字节 Base64 主加密密钥（可用下述 Node.js 命令一键生成）。
 
 > 💡 **生成 MASTER_KEY 提示**：
-> 可以使用 Node.js 一键生成标准 32 字节高熵密钥：
 > ```bash
 > node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 > ```
 
-### 3. 应用生产数据库迁移
-```bash
-npm run db:migrate:remote
-```
+---
 
-### 4. 部署上线
-```bash
-npm run deploy
-```
-部署完成后，Wrangler 会输出您的生产网关域名（如 `https://git2im.<your-account>.workers.dev`）。
+### 方式二：本地 CLI 命令行部署
+
+1. **授权登录 Cloudflare**：
+   ```bash
+   npx wrangler login
+   ```
+2. **设置生产 Secret**：
+   ```bash
+   npx wrangler secret put ADMIN_PASSWORD
+   npx wrangler secret put MASTER_KEY
+   ```
+3. **一键迁移并部署**：
+   ```bash
+   npm run deploy
+   ```
+   部署完成后，终端将输出您的正式访问域名（如 `https://git2im.<your-subdomain>.workers.dev`）。
 
 ---
 
