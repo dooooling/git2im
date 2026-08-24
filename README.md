@@ -10,7 +10,7 @@
 
 **基于 Cloudflare Workers 构建的轻量级、高可靠 GitHub 事件到 IM（飞书、钉钉、企业微信）通知网关**
 
-[项目简介](#-项目简介) • [核心特性](#-核心特性) • [快速开始](#-快速开始) • [生产部署指南](#-生产部署指南) • [Webhook 配置](#-github-webhook-配置指引) • [架构与目录](#-架构设计与工程约束)
+[项目简介](#-项目简介) • [核心特性](#-核心特性) • [快速开始](#-快速开始) • [生产部署指南](#-生产部署指南) • [Webhook 配置](#-github-webhook-配置指引) • [安全实践](#-生产安全最佳实践)
 
 </div>
 
@@ -153,44 +153,6 @@ npm run typecheck
    - [x] **Workflow runs**（Actions 持续集成完成结果）
    - [x] **Releases**（版本发布）
 6. 点击 **Add webhook** 保存。
-
----
-
-## 📁 架构设计与工程约束
-
-系统严格遵守 [`AGENTS.md`](file:///D:/Mine/Project/git2im/AGENTS.md) 与 [`DESIGN.md`](file:///D:/Mine/Project/git2im/DESIGN.md) 核心规范基线：
-
-```text
-git2im/
-├── docs/                                  # 架构设计方案文档
-│   └── github-im-notification-gateway-design.md
-├── migrations/                            # D1 核心数据库迁移脚本 (6张数据表及索引)
-│   └── 0001_initial.sql
-├── src/                                   # 服务端核心代码 (Webhooks / Routing / Channels / Security)
-│   ├── index.ts                           # Worker 主入口
-│   ├── security/                          # AES-256-GCM / 密码比对 / 凭据加密轮换 / 脱敏
-│   ├── storage/                           # D1 操作 (原子幂等事件、投递记录、大盘聚合统计)
-│   ├── github/                            # Webhook 验签、1MB 保护、事件标准化解析
-│   ├── notification/                      # 通用通知模型、UTF-8 字符截断、多维路由匹配引擎
-│   ├── channels/                          # 4 大 IM 适配器 (飞书 Webhook/App、钉钉、企微)
-│   ├── config/                            # Targets / Routes / Settings CRUD (含唯一性校验)
-│   ├── http/                              # 原生极轻量 HTTP 路由器、鉴权中间件
-│   ├── api/                               # REST API 控制器
-│   └── scheduled/                         # 定时清理任务 (30 天历史数据清理)
-├── public/                                # 极客暗黑纯原生管理前端 (DESIGN.md 规范)
-│   ├── index.html                         # 单页应用骨架
-│   ├── styles.css                         # 纯黑发丝线胶囊主题
-│   ├── i18n.js                            # 零依赖中英文双语字典
-│   └── app.js                             # 响应式交互、原生 SVG 图表与 XSS 防护渲染
-├── test/                                  # 22 个测试套件，96 项自动化测试
-├── AGENTS.md                              # AI 智能体开发规范与硬性约束
-├── DESIGN.md                              # UI/UX 设计规范
-├── README.md                              # 项目说明文档
-├── LICENSE                                # 开源许可证
-├── wrangler.jsonc                         # Cloudflare 配置文件
-├── package.json
-└── tsconfig.json
-```
 
 ---
 
