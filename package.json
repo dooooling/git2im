@@ -19,7 +19,7 @@
     "webhook:test": "tsx scripts/send-webhook.ts",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
-    "deploy": "wrangler deploy",
+    "deploy": "npm run db:migrate:remote && wrangler deploy",
     "cf-typegen": "wrangler types"
   },
   "devDependencies": {
