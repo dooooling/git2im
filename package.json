@@ -1,0 +1,34 @@
+{
+  "name": "git2im",
+  "version": "1.0.0",
+  "private": true,
+  "description": "基于 Cloudflare Workers 的轻量级 GitHub 到国内主流 IM（飞书/钉钉/企业微信）通知网关",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run test/unit",
+    "test:integration": "vitest run test/integration",
+    "test:coverage": "vitest run --coverage",
+    "check": "npm run typecheck && npm run test",
+    "webhook:test": "tsx scripts/send-webhook.ts",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "deploy": "wrangler deploy",
+    "cf-typegen": "wrangler types"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.0.0",
+    "@cloudflare/workers-types": "^4.20250224.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.0",
+    "wrangler": "^3.111.0"
+  }
+}

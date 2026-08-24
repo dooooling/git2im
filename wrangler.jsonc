@@ -1,0 +1,52 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "git2im",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-24",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+
+  // 前端管理静态资源托管 (Workers Static Assets)
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+
+  // 核心数据库绑定 (Cloudflare D1 SQLite，V1 唯一业务 Source of Truth)
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "git2im",
+      "database_id": "local-d1-placeholder",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // 管理端登录防爆破限流器 (Rate Limiting Binding)
+  "unsafe": {
+    "bindings": [
+      {
+        "name": "LOGIN_RATE_LIMITER",
+        "type": "ratelimit",
+        "namespace_id": "1001",
+        "simple": {
+          "limit": 10,
+          "period": 60
+        }
+      }
+    ]
+  },
+
+  // 定时任务触发器 (每天凌晨 03:17 UTC 执行清理过期的 events 和 deliveries)
+  "triggers": {
+    "crons": [
+      "17 3 * * *"
+    ]
+  },
+
+  // Workers 可观测性与日志
+  "observability": {
+    "enabled": true
+  }
+}

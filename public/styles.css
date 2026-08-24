@@ -1,0 +1,496 @@
+/**
+ * git2im UI Design System (Strict dark aesthetic based on DESIGN.md)
+ *
+ * 核心规范：
+ * 1. 纯黑背景 Canvas (#0a0a0a)，卡片 Canvas Card (#191919)，1px 细发丝边框 Hairline (#212327)。
+ * 2. 严禁使用 box-shadow 投影，依靠发丝线分层。
+ * 3. 严格全站 Weight 400 (无加粗)，通过字号与负字距分层；Eyebrow / 标签采用 Geist Mono 大写 + 1.4px 正向字距。
+ * 4. 按钮与交互元素统一采用 9999px 胶囊圆角 (rounded.pill) 与半透明白边框 (1px solid rgba(255, 255, 255, 0.25))。
+ */
+
+:root {
+  /* Colors */
+  --color-canvas: #0a0a0a;
+  --color-canvas-soft: #1a1c20;
+  --color-canvas-card: #191919;
+  --color-canvas-mid: #25282c;
+  --color-hairline: #212327;
+  --color-hairline-bright: rgba(255, 255, 255, 0.15);
+  
+  --color-ink: #ffffff;
+  --color-body: #dadbdf;
+  --color-body-mid: #7d8187;
+  
+  --color-accent-white: #ffffff;
+  --color-accent-orange: #ff7a17;
+  --color-accent-purple: #7c3aed;
+  --color-accent-blue: #a0c3ec;
+  
+  --color-status-success: #30d158;
+  --color-status-error: #ff453a;
+  --color-status-warning: #ff9f0a;
+  --color-status-info: #0a84ff;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", "SF Mono", Consolas, monospace;
+
+  /* Shapes */
+  --radius-sm: 8px;
+  --radius-pill: 9999px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* App Container */
+.app-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px 64px 24px;
+  flex: 1;
+}
+
+/* Header & Nav */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-hairline);
+  margin-bottom: 32px;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--color-ink);
+}
+
+.brand-logo {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-title {
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.nav-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-body-mid);
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.nav-tab:hover {
+  color: var(--color-ink);
+}
+
+.nav-tab.active {
+  color: var(--color-ink);
+  background-color: var(--color-canvas-card);
+  border-color: var(--color-hairline-bright);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Eyebrows (Geist Mono Uppercase) */
+.eyebrow-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--color-body-mid);
+  margin-bottom: 8px;
+}
+
+/* Headings */
+.heading-display {
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  margin-bottom: 24px;
+}
+
+.heading-section {
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -0.4px;
+  margin-bottom: 16px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--color-ink);
+  line-height: 1;
+}
+
+.btn:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-primary {
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  border-color: var(--color-ink);
+}
+
+.btn-primary:hover {
+  background-color: #f0f0f0;
+  border-color: #f0f0f0;
+}
+
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 12px;
+}
+
+.btn-danger {
+  border-color: rgba(255, 69, 58, 0.4);
+  color: var(--color-status-error);
+}
+
+.btn-danger:hover {
+  border-color: var(--color-status-error);
+  background-color: rgba(255, 69, 58, 0.1);
+}
+
+/* Cards */
+.card {
+  background-color: var(--color-canvas-card);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+/* Metric Cards Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background-color: var(--color-canvas-card);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+}
+
+.metric-value {
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: -1.2px;
+  color: var(--color-ink);
+  margin-top: 4px;
+  font-family: var(--font-sans);
+}
+
+.metric-sub {
+  font-size: 12px;
+  color: var(--color-body-mid);
+  margin-top: 4px;
+}
+
+/* 2-Column Grid */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* Tables */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.data-table th {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-body-mid);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.data-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-hairline);
+  color: var(--color-body);
+  font-size: 13px;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Status Badges & Pills */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  line-height: 1.2;
+  border: 1px solid var(--color-hairline);
+  background-color: var(--color-canvas-soft);
+  color: var(--color-body);
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.badge-success {
+  border-color: rgba(48, 209, 88, 0.3);
+  color: var(--color-status-success);
+}
+.badge-success .badge-dot { background-color: var(--color-status-success); }
+
+.badge-error {
+  border-color: rgba(255, 69, 58, 0.3);
+  color: var(--color-status-error);
+}
+.badge-error .badge-dot { background-color: var(--color-status-error); }
+
+.badge-warning {
+  border-color: rgba(255, 159, 10, 0.3);
+  color: var(--color-status-warning);
+}
+.badge-warning .badge-dot { background-color: var(--color-status-warning); }
+
+.badge-info {
+  border-color: rgba(10, 132, 255, 0.3);
+  color: var(--color-status-info);
+}
+.badge-info .badge-dot { background-color: var(--color-status-info); }
+
+/* Forms & Inputs */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-body-mid);
+  margin-bottom: 8px;
+}
+
+.form-control {
+  width: 100%;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--color-ink);
+  font-size: 14px;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.form-control:focus {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237d8187' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--color-body-mid);
+  margin-top: 6px;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-card {
+  background-color: var(--color-canvas-card);
+  border: 1px solid var(--color-hairline-bright);
+  border-radius: var(--radius-sm);
+  width: 100%;
+  max-width: 560px;
+  padding: 32px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -0.4px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+/* SVG Chart Styling */
+.trend-chart-container {
+  width: 100%;
+  height: 220px;
+  margin-top: 16px;
+}
+
+.trend-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Toasts */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background-color: var(--color-canvas-card);
+  border: 1px solid var(--color-hairline-bright);
+  border-radius: var(--radius-pill);
+  padding: 10px 20px;
+  color: var(--color-ink);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .nav-tabs {
+    overflow-x: auto;
+    max-width: 280px;
+  }
+}

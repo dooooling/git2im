@@ -1,0 +1,138 @@
+/**
+ * 企业微信群机器人 Webhook 通道适配器 (WeCom Webhook Channel)
+ */
+
+import type { Env } from "../../env";
+import type { WeComWebhookTarget, NotificationChannel, DeliveryResult } from "../types";
+import type { Notification } from "../../notification/types";
+import { getSecret } from "../../security/secret-store";
+import { validateWebhookUrl } from "../url-guard";
+import { renderWeComMarkdown } from "./render";
+import { sanitizeErrorSummary } from "../../security/redact";
+
+export const weComWebhookChannel: NotificationChannel<WeComWebhookTarget> = {
+  type: "wecom_webhook",
+
+  async send(
+    env: Env,
+    target: WeComWebhookTarget,
+    notification: Notification
+  ): Promise<DeliveryResult> {
+    const startTime = Date.now();
+
+    try {
+      // 1. 读取 Webhook URL
+      const webhookUrl = await getSecret(
+        env.DB,
+        env.MASTER_KEY,
+        "target",
+        target.id,
+        "webhook_url"
+      );
+
+      if (!webhookUrl) {
+        return {
+          targetId: target.id,
+          provider: "wecom",
+          channelType: "wecom_webhook",
+          success: false,
+          errorCode: "WECOM_WEBHOOK_CONFIG_ERROR",
+          errorSummary: "Webhook URL is not configured",
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      // 2. 域名白名单校验 (防 SSRF)
+      const urlCheck = validateWebhookUrl("wecom_webhook", webhookUrl);
+      if (!urlCheck.valid) {
+        return {
+          targetId: target.id,
+          provider: "wecom",
+          channelType: "wecom_webhook",
+          success: false,
+          errorCode: "WECOM_WEBHOOK_CONFIG_ERROR",
+          errorSummary: `Invalid Webhook URL: ${urlCheck.reason}`,
+          durationMs: Date.now() - startTime,
+        };
+      }
+
+      // 3. 构建 Markdown 载荷（已做 3 KiB 安全截断）
+      const payload = renderWeComMarkdown(notification);
+
+      // 4. 发送请求 (超时 3 秒，禁止跟随重定向)
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+        body: JSON.stringify(payload),
+        redirect: "error",
+        signal: AbortSignal.timeout(3000),
+      });
+
+      const durationMs = Date.now() - startTime;
+      const httpStatus = response.status;
+
+      let json: any = {};
+      try {
+        json = await response.json();
+      } catch {
+        json = {};
+      }
+
+      const isSuccess = response.ok && (json.errcode === 0 || json.errcode === "0");
+
+      if (!isSuccess) {
+        const errorMsg = json.errmsg || response.statusText || "WeCom API Error";
+        return {
+          targetId: target.id,
+          provider: "wecom",
+          channelType: "wecom_webhook",
+          success: false,
+          httpStatus,
+          providerCode: json.errcode !== undefined ? String(json.errcode) : undefined,
+          errorCode: httpStatus === 429 ? "WECOM_WEBHOOK_RATE_LIMIT" : "WECOM_WEBHOOK_API_ERROR",
+          errorSummary: sanitizeErrorSummary(errorMsg),
+          durationMs,
+        };
+      }
+
+      return {
+        targetId: target.id,
+        provider: "wecom",
+        channelType: "wecom_webhook",
+        success: true,
+        httpStatus,
+        durationMs,
+      };
+    } catch (err: any) {
+      const isTimeout = err.name === "TimeoutError" || err.message?.includes("timeout");
+      return {
+        targetId: target.id,
+        provider: "wecom",
+        channelType: "wecom_webhook",
+        success: false,
+        errorCode: isTimeout ? "WECOM_WEBHOOK_TIMEOUT" : "WECOM_WEBHOOK_HTTP_ERROR",
+        errorSummary: sanitizeErrorSummary(err),
+        durationMs: Date.now() - startTime,
+      };
+    }
+  },
+
+  async test(env: Env, target: WeComWebhookTarget): Promise<DeliveryResult> {
+    const testNotification: Notification = {
+      title: "git2im 连通性测试",
+      level: "success",
+      repository: "git2im",
+      eventLabel: "Test",
+      fields: [
+        { label: "Target", value: target.name },
+        { label: "Provider", value: "WeCom Webhook Bot" },
+        { label: "Time", value: new Date().toISOString() },
+      ],
+      description: "恭喜！企业微信群机器人通知通道已正确配置并成功连接。",
+    };
+
+    return this.send(env, target, testNotification);
+  },
+};
